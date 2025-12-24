@@ -174,6 +174,7 @@
             <button class="btn-count" data-count="7">7</button>
             <button class="btn-count active" data-count="8">8</button>
         </div>
+        <p style="color:rgba(255,255,255,0.6); font-size: 10px; margin-top: -10px;">SELECT BOT COUNT</p>
         <button id="start-game-btn">ENTER ARENA</button>
     </div>
 
@@ -214,7 +215,7 @@
         let canParry = true;
         let isParrying = false;
         let parryTimer = null;
-        let startingCount = 8;
+        let startingBotCount = 8;
 
         const ARENA_RADIUS = 110;
         const BASE_SPEED = 0.65;
@@ -238,7 +239,6 @@
             sun.position.set(10, 50, 10);
             scene.add(sun);
 
-            // Floor
             const floor = new THREE.Mesh(
                 new THREE.PlaneGeometry(500, 500),
                 new THREE.MeshStandardMaterial({ color: 0x050510, roughness: 0.1, metalness: 0.5 })
@@ -249,7 +249,6 @@
             const grid = new THREE.GridHelper(300, 30, 0xff00ff, 0x111122);
             scene.add(grid);
 
-            // Ball
             ball = new THREE.Mesh(
                 new THREE.SphereGeometry(0.8, 32, 32),
                 new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 10 })
@@ -291,12 +290,16 @@
             aliveBots.forEach(b => scene.remove(b.group));
             aliveBots = [];
             const colors = [0xff00ff, 0x00ffff, 0xffff00, 0x00ff00, 0xff0000, 0x0000ff, 0x00ffaa, 0xffaa00];
-            const botCount = startingCount - 1;
+            
+            // Selection now determines Bot Count (e.g., selection 8 = 8 bots + 1 user = 9 players)
+            const botCount = startingBotCount;
             
             for(let i=0; i<botCount; i++) {
                 const b = createChar(colors[i % colors.length]);
                 const ang = (i/botCount) * Math.PI * 2;
-                b.group.position.set(Math.cos(ang)*45, 0, Math.sin(ang)*45);
+                // Offset radius slightly based on bot count for better visual spacing
+                const radius = 40 + (botCount * 1.5);
+                b.group.position.set(Math.cos(ang)*radius, 0, Math.sin(ang)*radius);
                 scene.add(b.group);
                 aliveBots.push(b);
             }
@@ -360,14 +363,12 @@
 
             window.addEventListener('touchstart', (e) => {
                 for(let t of e.changedTouches) {
-                    // Check if touching joystick area
                     const rect = joyWrap.getBoundingClientRect();
                     const inJoy = t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom;
                     
                     if(inJoy && joyTouchId === null) {
                         joyTouchId = t.identifier;
                     } else if (camTouchId === null) {
-                        // Any other touch is camera control
                         camTouchId = t.identifier;
                         lastCamX = t.clientX;
                     }
@@ -388,7 +389,7 @@
                         moveZ = (Math.sin(angle)*dist)/(rect.width/2);
                     } else if (t.identifier === camTouchId) {
                         const deltaX = t.clientX - lastCamX;
-                        camYaw -= deltaX * 0.007; // Sensivity
+                        camYaw -= deltaX * 0.007; 
                         lastCamX = t.clientX;
                     }
                 }
@@ -521,7 +522,7 @@
             b.onclick = () => {
                 document.querySelectorAll('.btn-count').forEach(x => x.classList.remove('active'));
                 b.classList.add('active');
-                startingCount = parseInt(b.dataset.count);
+                startingBotCount = parseInt(b.dataset.count);
             };
         });
 
@@ -529,3 +530,4 @@
     </script>
 </body>
 </html>
+
