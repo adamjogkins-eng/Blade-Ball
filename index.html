@@ -8,6 +8,7 @@
         :root {
             --neon-pink: #ff00ff;
             --neon-blue: #00ffff;
+            --neon-gold: #ffcc00;
         }
         body { 
             margin: 0; 
@@ -19,7 +20,6 @@
             height: 100vh;
         }
         
-        /* Fixed UI Layering */
         #lobby, #overlay {
             position: absolute;
             inset: 0;
@@ -27,14 +27,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             color: white;
             text-align: center;
             background: radial-gradient(circle at center, #0a0a25 0%, #02020a 100%);
+            padding-top: 5vh;
         }
 
         .lobby-title {
-            font-size: clamp(40px, 12vw, 80px);
+            font-size: clamp(30px, 8vw, 60px);
             font-weight: 950;
             color: #fff;
             text-shadow: 0 0 10px var(--neon-pink), 0 0 30px var(--neon-blue);
@@ -43,23 +44,70 @@
             text-transform: uppercase;
         }
 
+        #shop-container {
+            width: 100%;
+            height: 40vh;
+            position: relative;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #shop-canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .shop-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 10px;
+            z-index: 210;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--neon-blue);
+            color: white;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: 900;
+            border-radius: 8px;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        .nav-btn:hover { background: var(--neon-blue); color: black; box-shadow: 0 0 20px var(--neon-blue); }
+
+        .sword-info {
+            margin-bottom: 5px;
+            min-height: 40px;
+        }
+        #sword-name {
+            font-size: 28px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
         .player-select {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin: 30px 0;
-            padding: 0 20px;
+            margin: 10px 0;
         }
 
         .btn-count {
-            width: 50px;
-            height: 50px;
+            width: 45px; height: 45px;
             border: 2px solid rgba(0, 255, 255, 0.2);
             background: rgba(0, 255, 255, 0.05);
             color: var(--neon-blue);
             border-radius: 8px;
             font-weight: 800;
-            font-size: 18px;
             cursor: pointer;
         }
 
@@ -67,10 +115,10 @@
             background: var(--neon-blue);
             color: #000;
             box-shadow: 0 0 15px var(--neon-blue);
-            border-color: #fff;
         }
 
         #start-game-btn {
+            margin-top: 15px;
             padding: 18px 60px;
             background: var(--neon-pink);
             border: none;
@@ -78,13 +126,13 @@
             font-weight: 900;
             font-size: 22px;
             clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.6);
+            cursor: pointer;
         }
 
-        /* In-Game UI */
         #game-ui {
             position: absolute;
-            top: 40px;
+            top: 20px;
             width: 100%;
             display: none;
             flex-direction: column;
@@ -97,16 +145,23 @@
             color: #fff;
             font-size: 20px;
             font-weight: 900;
-            letter-spacing: 2px;
             text-shadow: 0 0 10px var(--neon-blue);
-            margin-bottom: 10px;
+            margin: 0;
         }
 
-        #indicator { width: 240px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-        #parry-bar { width: 100%; height: 100%; background: var(--neon-pink); transition: width 0.1s linear; }
-        #parry-bar.resetting { background: #fff; transition: none; }
+        #disaster-alert {
+            color: #ff0000;
+            font-size: 24px;
+            font-weight: 950;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: none;
+            text-shadow: 0 0 15px #ff0000;
+        }
 
-        /* Mobile Controls */
+        #indicator { width: 240px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-top: 5px; }
+        #parry-bar { width: 100%; height: 100%; background: var(--neon-pink); transition: width 0.1s linear; }
+
         #mobile-controls {
             position: absolute;
             bottom: 50px;
@@ -120,40 +175,36 @@
         }
 
         #joystick-wrapper {
-            width: 140px; height: 140px;
+            width: 130px; height: 130px;
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             position: relative;
             pointer-events: auto;
-            backdrop-filter: blur(5px);
         }
 
         #joystick-stick {
-            width: 60px; height: 60px;
+            width: 55px; height: 55px;
             background: #fff;
             border-radius: 50%;
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 15px #fff;
         }
 
         #parry-btn {
-            width: 120px; height: 120px;
-            background: rgba(255, 0, 255, 0.2);
-            border: 3px solid var(--neon-pink);
+            width: 110px; height: 110px;
+            background: rgba(255, 0, 255, 0.3);
+            border: 4px solid var(--neon-pink);
             border-radius: 50%;
             pointer-events: auto;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 900;
-            font-size: 22px;
-            text-shadow: 0 0 10px #fff;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
-            user-select: none;
+            font-weight: 950;
+            font-size: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
         }
 
         canvas { display: block; width: 100%; height: 100%; }
@@ -163,7 +214,16 @@
 
     <div id="lobby">
         <h1 class="lobby-title">Blade Ball</h1>
-        <p style="letter-spacing: 5px; color: var(--neon-blue); font-size: 12px;">CYBERPUNK ARENA</p>
+        <div id="shop-container">
+            <div id="shop-canvas-container"></div>
+        </div>
+        <div class="sword-info">
+            <div id="sword-name">CYBER SLASHER</div>
+        </div>
+        <div class="shop-controls">
+            <button class="nav-btn" id="prev-sword">←</button>
+            <button class="nav-btn" id="next-sword">→</button>
+        </div>
         <div class="player-select">
             <button class="btn-count" data-count="1">1</button>
             <button class="btn-count" data-count="2">2</button>
@@ -174,11 +234,11 @@
             <button class="btn-count" data-count="7">7</button>
             <button class="btn-count active" data-count="8">8</button>
         </div>
-        <p style="color:rgba(255,255,255,0.6); font-size: 10px; margin-top: -10px;">SELECT BOT COUNT</p>
-        <button id="start-game-btn">ENTER ARENA</button>
+        <button id="start-game-btn">START MATCH</button>
     </div>
 
     <div id="game-ui">
+        <div id="disaster-alert">WIND STORM!</div>
         <h2 id="status">INITIATING...</h2>
         <div id="indicator"><div id="parry-bar"></div></div>
     </div>
@@ -188,10 +248,10 @@
         <div id="parry-btn">PARRY</div>
     </div>
 
-    <div id="overlay" style="display:none; background: rgba(0,0,0,0.9);">
+    <div id="overlay" style="display:none; background: rgba(0,0,0,0.95);">
         <h1 id="end-title" style="font-size: 60px;">DEFEAT</h1>
         <p id="score-text">DEFLECTIONS: 0</p>
-        <button id="replay-btn" style="padding: 15px 40px; background: var(--neon-blue); border:none; font-weight: bold; margin-top: 20px;">BACK TO LOBBY</button>
+        <button id="replay-btn" style="padding: 15px 40px; background: var(--neon-blue); border:none; font-weight: bold; margin-top: 20px; cursor: pointer;">RETURN TO LOBBY</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -205,6 +265,7 @@
 
         // --- Core Variables ---
         let scene, camera, renderer, player, ball, bLight;
+        let shopScene, shopCamera, shopRenderer, shopSwordGroup;
         let gameActive = false;
         let aliveBots = [];
         let score = 0;
@@ -214,14 +275,28 @@
         let ballPos = new THREE.Vector3(0, 1.6, 0);
         let canParry = true;
         let isParrying = false;
-        let parryTimer = null;
-        let startingBotCount = 8;
+        let rainParticles, thunderLight;
+        let disasterType = "none"; 
+        let disasterTimeout = null;
+        let friction = 1.0;
 
         const ARENA_RADIUS = 110;
         const BASE_SPEED = 0.65;
         const SPEED_INC = 0.08;
+        const MIN_BALL_HEIGHT = 0.8;
 
-        // --- Init Scene ---
+        const swords = [
+            { id: 'cyber', name: "Cyber Slasher", color: 0x00ffff },
+            { id: 'sol', name: "Solaris Prime", color: 0xffcc00 },
+            { id: 'void', name: "Void Ravager", color: 0xff00ff },
+            { id: 'jade', name: "Jade Whisper", color: 0x00ff88 },
+            { id: 'blood', name: "Executioner", color: 0xff0044 },
+            { id: 'dragon', name: "Dragon Slayer", color: 0xff5500 },
+            { id: 'frost', name: "Glacial Edge", color: 0x88ccff },
+            { id: 'nova', name: "Nova Breaker", color: 0x7700ff }
+        ];
+        let currentSwordIdx = 0;
+
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x010105);
@@ -230,82 +305,239 @@
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gameCanvas'), antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            const ambient = new THREE.AmbientLight(0xffffff, 0.4);
-            scene.add(ambient);
-
-            const sun = new THREE.DirectionalLight(0x00ffff, 1);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+            const sun = new THREE.DirectionalLight(0x00ffff, 0.5);
             sun.position.set(10, 50, 10);
             scene.add(sun);
 
-            const floor = new THREE.Mesh(
-                new THREE.PlaneGeometry(500, 500),
-                new THREE.MeshStandardMaterial({ color: 0x050510, roughness: 0.1, metalness: 0.5 })
-            );
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshStandardMaterial({ color: 0x050510, roughness: 0.1, metalness: 0.5 }));
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
+            scene.add(new THREE.GridHelper(300, 30, 0xff00ff, 0x111122));
 
-            const grid = new THREE.GridHelper(300, 30, 0xff00ff, 0x111122);
-            scene.add(grid);
-
-            ball = new THREE.Mesh(
-                new THREE.SphereGeometry(0.8, 32, 32),
-                new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 10 })
-            );
+            ball = new THREE.Mesh(new THREE.SphereGeometry(0.8, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 10 }));
             bLight = new THREE.PointLight(0xffffff, 100, 40);
             ball.add(bLight);
             scene.add(ball);
 
-            player = createChar(0x00ffff);
+            // Rain
+            const rainGeo = new THREE.BufferGeometry();
+            const rainPos = [];
+            for(let i=0; i<3000; i++) {
+                rainPos.push((Math.random()-0.5)*300, Math.random()*100, (Math.random()-0.5)*300);
+            }
+            rainGeo.setAttribute('position', new THREE.Float32BufferAttribute(rainPos, 3));
+            const rainMat = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.2, transparent: true, opacity: 0.4 });
+            rainParticles = new THREE.Points(rainGeo, rainMat);
+            scene.add(rainParticles);
+
+            thunderLight = new THREE.PointLight(0xffffff, 0, 500);
+            thunderLight.position.set(0, 50, 0);
+            scene.add(thunderLight);
+
+            player = createChar(swords[currentSwordIdx]);
             scene.add(player.group);
 
+            initShop();
             window.addEventListener('resize', onResize);
             setupInput();
             requestAnimationFrame(animate);
         }
 
-        function createChar(color) {
+        function createChar(swordData) {
             const group = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.6, 1.2, 4, 12), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-            body.position.y = 1.2;
-            group.add(body);
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+            const accentMat = new THREE.MeshStandardMaterial({ color: swordData.color, emissive: swordData.color, emissiveIntensity: 1 });
 
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 2 }));
-            head.position.y = 2.3;
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.45), new THREE.MeshStandardMaterial({ color: 0x050505 }));
+            torso.position.y = 1.6;
+            group.add(torso);
+
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), skinMat);
+            head.position.y = 2.5;
             group.add(head);
 
-            const swordGrp = new THREE.Group();
-            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.05, 3.5, 0.15), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: color, emissiveIntensity: 5 }));
-            blade.position.y = 1.7;
-            swordGrp.add(blade);
-            swordGrp.position.set(0.8, 1, 0.5);
-            group.add(swordGrp);
+            const glass = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.15, 0.1), new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 1, roughness: 0 }));
+            glass.position.set(0, 2.55, 0.25);
+            group.add(glass);
 
-            return { group, sword: swordGrp, color, velocity: new THREE.Vector3(), lastPos: new THREE.Vector3() };
+            const createArm = (side) => {
+                const arm = new THREE.Group();
+                const limb = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1.0), skinMat);
+                limb.position.y = -0.4;
+                arm.add(limb);
+                const glove = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), accentMat);
+                glove.position.y = -0.9;
+                arm.add(glove);
+                arm.position.set(0.6 * side, 2.1, 0);
+                return arm;
+            };
+            const leftArm = createArm(-1);
+            const rightArm = createArm(1);
+            group.add(leftArm, rightArm);
+
+            const createLeg = (side) => {
+                const leg = new THREE.Group();
+                const limb = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 1.0), skinMat);
+                limb.position.y = -0.5;
+                leg.add(limb);
+                const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 0.6), accentMat);
+                shoe.position.set(0, -1.0, 0.1);
+                leg.add(shoe);
+                leg.position.set(0.25 * side, 1.0, 0);
+                return leg;
+            };
+            group.add(createLeg(-1), createLeg(1));
+
+            const handPivot = new THREE.Group();
+            handPivot.position.set(0, -1.0, 0);
+            rightArm.add(handPivot);
+
+            const swordContainer = new THREE.Group();
+            const swordModel = createSwordModel(swordData, false);
+            swordModel.rotation.y = Math.PI/2;
+            swordContainer.add(swordModel);
+            handPivot.add(swordContainer);
+
+            return { group, sword: swordContainer, handPivot, head, color: swordData.color, rightArm, leftArm };
         }
 
-        // --- Gameplay Logic ---
+        function createSwordModel(swordData, isForPlayer = false) {
+            const group = new THREE.Group();
+            const color = swordData.color;
+            const hMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9, roughness: 0.1 });
+            
+            // Handle
+            const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.2), hMat);
+            handle.position.y = -1.8;
+            group.add(handle);
+            
+            // Blade
+            const bladeMat = new THREE.MeshStandardMaterial({ 
+                color: 0xffffff, 
+                emissive: color, 
+                emissiveIntensity: isForPlayer ? 3 : 6, 
+                metalness: 1, 
+                roughness: 0 
+            });
+
+            if (swordData.id === 'cyber') {
+                // CYBER SLASHER: Segmented Binary-style blade
+                for(let i=0; i<8; i++) {
+                    const segment = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.45, 0.4), bladeMat);
+                    segment.position.y = -0.8 + (i * 0.5);
+                    // Add tiny neon blocks for 'binary' 0/1 aesthetic
+                    if (Math.random() > 0.5) {
+                        const bit = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.1), bladeMat);
+                        bit.position.set(0.1, 0, 0.1);
+                        segment.add(bit);
+                    }
+                    group.add(segment);
+                }
+            } else if (swordData.id === 'sol') {
+                // SOLARIS PRIME: Core blade + Sun Orb
+                const blade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 4.0, 0.4), bladeMat);
+                blade.position.y = 1;
+                group.add(blade);
+
+                const sunOrb = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), new THREE.MeshStandardMaterial({ 
+                    color: 0xffaa00, 
+                    emissive: 0xffaa00, 
+                    emissiveIntensity: 10 
+                }));
+                sunOrb.position.y = 3.2;
+                group.add(sunOrb);
+
+                const sunLight = new THREE.PointLight(0xffaa00, 2, 5);
+                sunOrb.add(sunLight);
+            } else {
+                // DEFAULT BLADE
+                const blade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 4.0, 0.4), bladeMat);
+                blade.position.y = 1;
+                group.add(blade);
+            }
+
+            // Guard
+            const guard = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.15, 0.5), new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 1 }));
+            guard.position.y = -1.2;
+            group.add(guard);
+            
+            return group;
+        }
+
+        function initShop() {
+            const container = document.getElementById('shop-canvas-container');
+            shopScene = new THREE.Scene();
+            shopCamera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+            shopCamera.position.set(0, 1, 7);
+            shopRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            shopRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(shopRenderer.domElement);
+            shopScene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            shopSwordGroup = new THREE.Group();
+            shopScene.add(shopSwordGroup);
+            updateShopSword();
+            document.getElementById('next-sword').onclick = () => { currentSwordIdx = (currentSwordIdx + 1) % swords.length; updateShopSword(); };
+            document.getElementById('prev-sword').onclick = () => { currentSwordIdx = (currentSwordIdx - 1 + swords.length) % swords.length; updateShopSword(); };
+        }
+
+        function updateShopSword() {
+            const data = swords[currentSwordIdx];
+            document.getElementById('sword-name').innerText = data.name;
+            while(shopSwordGroup.children.length) shopSwordGroup.remove(shopSwordGroup.children[0]);
+            shopSwordGroup.add(createSwordModel(data, false));
+            if(player) {
+                while(player.sword.children.length) player.sword.remove(player.sword.children[0]);
+                const pModel = createSwordModel(data, true);
+                pModel.rotation.y = Math.PI/2;
+                player.sword.add(pModel);
+            }
+        }
+
+        function triggerDisaster() {
+            const types = ["wind", "blackhole", "ice"];
+            disasterType = types[Math.floor(Math.random() * types.length)];
+            const alertEl = document.getElementById('disaster-alert');
+            alertEl.style.display = 'block';
+            
+            if(disasterType === "wind") {
+                alertEl.innerText = "WIND STORM: SPEED x3!";
+                alertEl.style.color = "#00ffff";
+            } else if(disasterType === "blackhole") {
+                alertEl.innerText = "BLACK HOLE: SPEED x7!";
+                alertEl.style.color = "#ff00ff";
+            } else if(disasterType === "ice") {
+                alertEl.innerText = "DEEP FREEZE: SLIPPERY!";
+                alertEl.style.color = "#88ccff";
+                friction = 0.05;
+            }
+
+            if(disasterTimeout) clearTimeout(disasterTimeout);
+            disasterTimeout = setTimeout(() => {
+                disasterType = "none";
+                friction = 1.0;
+                alertEl.style.display = 'none';
+            }, 8000);
+        }
+
         function startGame() {
             aliveBots.forEach(b => scene.remove(b.group));
             aliveBots = [];
-            const colors = [0xff00ff, 0x00ffff, 0xffff00, 0x00ff00, 0xff0000, 0x0000ff, 0x00ffaa, 0xffaa00];
-            
-            // Selection now determines Bot Count (e.g., selection 8 = 8 bots + 1 user = 9 players)
-            const botCount = startingBotCount;
-            
-            for(let i=0; i<botCount; i++) {
-                const b = createChar(colors[i % colors.length]);
-                const ang = (i/botCount) * Math.PI * 2;
-                // Offset radius slightly based on bot count for better visual spacing
-                const radius = 40 + (botCount * 1.5);
+            const startingBotCount = parseInt(document.querySelector('.btn-count.active').dataset.count);
+
+            for(let i=0; i<startingBotCount; i++) {
+                const b = createChar(swords[Math.floor(Math.random()*swords.length)]);
+                const ang = (i/startingBotCount) * Math.PI * 2;
+                const radius = 40;
                 b.group.position.set(Math.cos(ang)*radius, 0, Math.sin(ang)*radius);
                 scene.add(b.group);
                 aliveBots.push(b);
             }
             
             player.group.position.set(0,0,25);
-            ballPos.set(0, 1.6, 0);
+            ballPos.set(0, 5, -20);
             ballSpeed = BASE_SPEED;
             currentTargetIndex = -1;
             score = 0;
@@ -313,203 +545,160 @@
             document.getElementById('lobby').style.display = 'none';
             document.getElementById('game-ui').style.display = 'flex';
             document.getElementById('mobile-controls').style.display = 'flex';
-            document.getElementById('status').innerText = "ELIMINATION START";
         }
 
-        function performParry() {
-            if(!canParry || !gameActive) return;
-            isParrying = true; canParry = false;
-            player.sword.rotation.z = 1.5;
-            document.getElementById('parry-bar').style.width = '0%';
-
-            if(parryTimer) clearTimeout(parryTimer);
-            parryTimer = setTimeout(() => {
-                isParrying = false;
-                player.sword.rotation.z = 0;
-                setTimeout(() => { 
-                    if(!canParry) { 
-                        canParry = true; 
-                        document.getElementById('parry-bar').style.width = '100%'; 
-                    }
-                }, 400);
-            }, 200);
-        }
-
-        function resetParryQuick() {
-            isParrying = false;
-            player.sword.rotation.z = 0;
-            if(parryTimer) clearTimeout(parryTimer);
-            const bar = document.getElementById('parry-bar');
-            bar.classList.add('resetting');
-            bar.style.width = '100%';
-            setTimeout(() => {
-                canParry = true;
-                bar.classList.remove('resetting');
-            }, 30);
-        }
-
-        // --- Input Handling ---
         let moveX = 0, moveZ = 0, camYaw = 0;
-        let joyTouchId = null;
-        let camTouchId = null;
-        let lastCamX = 0;
+        let velX = 0, velZ = 0;
 
-        function setupInput() {
-            const parryBtn = document.getElementById('parry-btn');
-            const joyWrap = document.getElementById('joystick-wrapper');
-            const joyStick = document.getElementById('joystick-stick');
-            
-            parryBtn.addEventListener('touchstart', (e) => { e.preventDefault(); performParry(); });
-
-            window.addEventListener('touchstart', (e) => {
-                for(let t of e.changedTouches) {
-                    const rect = joyWrap.getBoundingClientRect();
-                    const inJoy = t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom;
-                    
-                    if(inJoy && joyTouchId === null) {
-                        joyTouchId = t.identifier;
-                    } else if (camTouchId === null) {
-                        camTouchId = t.identifier;
-                        lastCamX = t.clientX;
-                    }
-                }
-            }, {passive: false});
-
-            window.addEventListener('touchmove', (e) => {
-                for(let t of e.changedTouches) {
-                    if(t.identifier === joyTouchId) {
-                        const rect = joyWrap.getBoundingClientRect();
-                        const dx = t.clientX - (rect.left + rect.width/2);
-                        const dy = t.clientY - (rect.top + rect.height/2);
-                        const dist = Math.min(Math.sqrt(dx*dx+dy*dy), rect.width/2);
-                        const angle = Math.atan2(dy, dx);
-                        joyStick.style.left = `calc(50% + ${Math.cos(angle)*dist}px)`;
-                        joyStick.style.top = `calc(50% + ${Math.sin(angle)*dist}px)`;
-                        moveX = (Math.cos(angle)*dist)/(rect.width/2);
-                        moveZ = (Math.sin(angle)*dist)/(rect.width/2);
-                    } else if (t.identifier === camTouchId) {
-                        const deltaX = t.clientX - lastCamX;
-                        camYaw -= deltaX * 0.007; 
-                        lastCamX = t.clientX;
-                    }
-                }
-            }, {passive: false});
-
-            window.addEventListener('touchend', (e) => {
-                for(let t of e.changedTouches) {
-                    if(t.identifier === joyTouchId) {
-                        joyTouchId = null;
-                        moveX = 0; moveZ = 0;
-                        joyStick.style.left = '50%'; joyStick.style.top = '50%';
-                    } else if (t.identifier === camTouchId) {
-                        camTouchId = null;
-                    }
-                }
-            });
-            
-            window.addEventListener('touchcancel', (e) => {
-                for(let t of e.changedTouches) {
-                    if(t.identifier === joyTouchId) {
-                        joyTouchId = null;
-                        moveX = 0; moveZ = 0;
-                        joyStick.style.left = '50%'; joyStick.style.top = '50%';
-                    } else if (t.identifier === camTouchId) {
-                        camTouchId = null;
-                    }
-                }
-            });
-        }
-
-        function animate(time) {
+        function animate() {
             requestAnimationFrame(animate);
+
+            const positions = rainParticles.geometry.attributes.position.array;
+            for(let i=1; i<positions.length; i+=3) {
+                positions[i] -= 1.5;
+                if(positions[i] < 0) positions[i] = 100;
+            }
+            rainParticles.geometry.attributes.position.needsUpdate = true;
+
+            if(Math.random() < 0.005) {
+                thunderLight.intensity = 500;
+                setTimeout(() => thunderLight.intensity = 0, 100);
+            }
+
+            if(shopRenderer && !gameActive) {
+                shopSwordGroup.rotation.y += 0.015;
+                shopRenderer.render(shopScene, shopCamera);
+            }
+
             if(!gameActive) return;
 
-            // Player movement
-            player.lastPos.copy(player.group.position);
-            const moveVec = new THREE.Vector3(moveX, 0, moveZ).applyAxisAngle(new THREE.Vector3(0,1,0), camYaw);
-            player.group.position.add(moveVec.multiplyScalar(0.5));
+            if(Math.random() < 0.0015 && disasterType === "none") {
+                triggerDisaster();
+            }
+
+            const targetVelX = moveX * 0.5;
+            const targetVelZ = moveZ * 0.5;
+            velX += (targetVelX - velX) * friction;
+            velZ += (targetVelZ - velZ) * friction;
+
+            const moveVec = new THREE.Vector3(velX, 0, velZ).applyAxisAngle(new THREE.Vector3(0,1,0), camYaw);
+            player.group.position.add(moveVec);
             if(player.group.position.length() > ARENA_RADIUS) player.group.position.setLength(ARENA_RADIUS);
-            player.velocity.subVectors(player.group.position, player.lastPos);
-            if(moveVec.length() > 0.1) player.group.rotation.y = Math.atan2(moveVec.x, moveVec.z);
+            if(moveVec.length() > 0.05) player.group.rotation.y = Math.atan2(moveVec.x, moveVec.z);
 
-            // Ball Logic
             const target = (currentTargetIndex === -1) ? player.group : (aliveBots[currentTargetIndex]?.group || player.group);
-            const toTarget = new THREE.Vector3().subVectors(target.position, ballPos).normalize();
-            currentDir.lerp(toTarget, 0.1).normalize();
-            ballPos.add(currentDir.clone().multiplyScalar(ballSpeed));
-            ball.position.copy(ballPos);
-            ball.position.y = 1.6 + Math.sin(time*0.005)*0.3;
+            const targetPos = target.position.clone().add(new THREE.Vector3(0, 1.6, 0));
+            const toTarget = new THREE.Vector3().subVectors(targetPos, ballPos);
+            const dist = toTarget.length();
+            toTarget.normalize();
+            currentDir.lerp(toTarget, dist < 15 ? 1.0 : 0.2).normalize();
 
-            // Interaction
-            const dist = ball.position.distanceTo(target.position);
+            let activeSpeed = ballSpeed;
+            if(disasterType === "wind") activeSpeed *= 3;
+            if(disasterType === "blackhole") activeSpeed *= 7;
+            if(disasterType === "ice") activeSpeed *= 0.8;
+
+            ballPos.add(currentDir.clone().multiplyScalar(activeSpeed));
+            
+            if(ballPos.y < MIN_BALL_HEIGHT) {
+                ballPos.y = MIN_BALL_HEIGHT;
+                currentDir.y = Math.abs(currentDir.y);
+            }
+            
+            ball.position.copy(ballPos);
+
             if(dist < 7) {
                 if(currentTargetIndex === -1) {
                     if(isParrying) {
-                        ballSpeed += SPEED_INC;
-                        score++;
-                        if(aliveBots.length > 0) {
-                            currentTargetIndex = Math.floor(Math.random()*aliveBots.length);
-                        }
-                        resetParryQuick();
-                        document.getElementById('status').innerText = "DEFLECTED!";
-                    } else if(dist < 2.5) {
-                        gameOver(false);
-                    }
+                        ballSpeed += SPEED_INC; score++;
+                        if(aliveBots.length > 0) currentTargetIndex = Math.floor(Math.random()*aliveBots.length);
+                        isParrying = false; 
+                    } else if(dist < 2.5) gameOver(false);
                 } else {
                     const bot = aliveBots[currentTargetIndex];
-                    if(bot && dist < Math.max(6, ballSpeed*5)) {
-                        const difficulty = Math.min(0.95, 0.8 + (ballSpeed * 0.05));
-                        if(Math.random() < difficulty) { 
-                            if(aliveBots.length > 1 && Math.random() < 0.3) {
-                                let next;
-                                do { next = Math.floor(Math.random() * aliveBots.length); } while (next === currentTargetIndex);
-                                currentTargetIndex = next;
-                            } else {
-                                currentTargetIndex = -1;
-                            }
+                    if(bot && dist < Math.max(6, activeSpeed * 4)) {
+                        if(Math.random() < 0.85) { 
+                            currentTargetIndex = (Math.random() < 0.4 && aliveBots.length > 1) ? Math.floor(Math.random()*aliveBots.length) : -1;
                             ballSpeed += SPEED_INC;
-                            document.getElementById('status').innerText = "BOT DEFLECTED";
                         } else if(dist < 2.5) {
-                            scene.remove(bot.group);
-                            aliveBots.splice(currentTargetIndex, 1);
+                            scene.remove(bot.group); aliveBots.splice(currentTargetIndex, 1);
                             currentTargetIndex = -1;
                             if(aliveBots.length === 0) gameOver(true);
-                            else document.getElementById('status').innerText = "BOT ELIMINATED";
                         }
-                    } else if (!bot) {
-                        currentTargetIndex = -1;
                     }
                 }
             }
 
-            // Visuals
-            const danger = (currentTargetIndex === -1 && dist < 30);
-            ball.material.emissive.set(danger ? 0xff0000 : 0x00ffff);
-            bLight.color.set(danger ? 0xff0000 : 0x00ffff);
-
-            // Cam
-            camera.position.set(
-                player.group.position.x + Math.sin(camYaw)*30,
-                player.group.position.y + 15,
-                player.group.position.z + Math.cos(camYaw)*30
-            );
+            camera.position.set(player.group.position.x + Math.sin(camYaw)*25, player.group.position.y + 12, player.group.position.z + Math.cos(camYaw)*25);
             camera.lookAt(player.group.position);
-
             renderer.render(scene, camera);
         }
 
         function gameOver(win) {
             gameActive = false;
             document.getElementById('overlay').style.display = 'flex';
-            document.getElementById('end-title').innerText = win ? "VICTORY" : "ELIMINATED";
-            document.getElementById('score-text').innerText = "DEFLECTIONS: " + score;
+            document.getElementById('end-title').innerText = win ? "VICTORY" : "K.O.";
+            document.getElementById('score-text').innerText = "CLASHES: " + score;
             document.getElementById('mobile-controls').style.display = 'none';
+            document.getElementById('disaster-alert').style.display = 'none';
+        }
+
+        function performParry() {
+            if(!canParry || !gameActive) return;
+            isParrying = true; canParry = false;
+            player.rightArm.rotation.x = -1.5;
+            document.getElementById('parry-bar').style.width = '0%';
+            setTimeout(() => {
+                isParrying = false;
+                player.rightArm.rotation.x = 0;
+                setTimeout(() => { canParry = true; document.getElementById('parry-bar').style.width = '100%'; }, 400);
+            }, 150);
+        }
+
+        function setupInput() {
+            const parryBtn = document.getElementById('parry-btn');
+            const joyWrap = document.getElementById('joystick-wrapper');
+            const joyStick = document.getElementById('joystick-stick');
+            let joyTouchId = null, camTouchId = null, lastCamX = 0;
+            
+            parryBtn.addEventListener('touchstart', (e) => { e.preventDefault(); performParry(); });
+            window.addEventListener('touchstart', (e) => {
+                for(let t of e.changedTouches) {
+                    const rect = joyWrap.getBoundingClientRect();
+                    if(t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom) joyTouchId = t.identifier;
+                    else if (camTouchId === null) { camTouchId = t.identifier; lastCamX = t.clientX; }
+                }
+            });
+            window.addEventListener('touchmove', (e) => {
+                for(let t of e.changedTouches) {
+                    if(t.identifier === joyTouchId) {
+                        const rect = joyWrap.getBoundingClientRect();
+                        const dx = t.clientX - (rect.left + rect.width/2), dy = t.clientY - (rect.top + rect.height/2);
+                        const dist = Math.min(Math.sqrt(dx*dx+dy*dy), rect.width/2), ang = Math.atan2(dy, dx);
+                        joyStick.style.left = `calc(50% + ${Math.cos(ang)*dist}px)`;
+                        joyStick.style.top = `calc(50% + ${Math.sin(ang)*dist}px)`;
+                        moveX = (Math.cos(ang)*dist)/(rect.width/2); moveZ = (Math.sin(ang)*dist)/(rect.width/2);
+                    } else if (t.identifier === camTouchId) {
+                        camYaw -= (t.clientX - lastCamX) * 0.007; lastCamX = t.clientX;
+                    }
+                }
+            });
+            window.addEventListener('touchend', (e) => {
+                for(let t of e.changedTouches) {
+                    if(t.identifier === joyTouchId) { joyTouchId = null; moveX = 0; moveZ = 0; joyStick.style.left = '50%'; joyStick.style.top = '50%'; }
+                    else if (t.identifier === camTouchId) camTouchId = null;
+                }
+            });
         }
 
         function onResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            const container = document.getElementById('shop-canvas-container');
+            if(container) {
+                shopCamera.aspect = container.clientWidth / container.clientHeight; shopCamera.updateProjectionMatrix();
+                shopRenderer.setSize(container.clientWidth, container.clientHeight);
+            }
         }
 
         document.getElementById('start-game-btn').onclick = startGame;
@@ -517,12 +706,10 @@
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('lobby').style.display = 'flex';
         };
-        
         document.querySelectorAll('.btn-count').forEach(b => {
             b.onclick = () => {
                 document.querySelectorAll('.btn-count').forEach(x => x.classList.remove('active'));
                 b.classList.add('active');
-                startingBotCount = parseInt(b.dataset.count);
             };
         });
 
@@ -530,4 +717,3 @@
     </script>
 </body>
 </html>
-
