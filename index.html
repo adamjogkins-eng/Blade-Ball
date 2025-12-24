@@ -2,15 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Blade Ball - Cyber Tokyo</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #010105; font-family: 'Segoe UI', 'Roboto', sans-serif; touch-action: none; }
-        
-        #lobby {
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+        }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #010105; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            touch-action: none;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        /* Fixed UI Layering */
+        #lobby, #overlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #0a0a25 0%, #02020a 100%);
+            inset: 0;
             z-index: 200;
             display: flex;
             flex-direction: column;
@@ -18,111 +30,119 @@
             justify-content: center;
             color: white;
             text-align: center;
+            background: radial-gradient(circle at center, #0a0a25 0%, #02020a 100%);
         }
+
         .lobby-title {
-            font-size: clamp(40px, 10vw, 80px);
+            font-size: clamp(40px, 12vw, 80px);
             font-weight: 950;
             color: #fff;
-            text-shadow: 0 0 10px #ff00ff, 0 0 30px #00ffff;
-            margin-bottom: 5px;
-            letter-spacing: -2px;
+            text-shadow: 0 0 10px var(--neon-pink), 0 0 30px var(--neon-blue);
+            margin: 0;
             font-style: italic;
+            text-transform: uppercase;
         }
-        .lobby-subtitle { opacity: 0.6; margin-bottom: 40px; font-size: 12px; letter-spacing: 6px; text-transform: uppercase; color: #00ffff; }
+
         .player-select {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 400px;
-            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 30px 0;
+            padding: 0 20px;
         }
+
         .btn-count {
-            width: 45px;
-            height: 45px;
-            border: 1px solid rgba(0, 255, 255, 0.3);
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(0, 255, 255, 0.2);
             background: rgba(0, 255, 255, 0.05);
-            color: #00ffff;
-            border-radius: 4px;
-            font-size: 16px;
+            color: var(--neon-blue);
+            border-radius: 8px;
             font-weight: 800;
+            font-size: 18px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
         .btn-count.active {
-            background: #00ffff;
+            background: var(--neon-blue);
             color: #000;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
-            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--neon-blue);
+            border-color: #fff;
         }
 
         #start-game-btn {
-            padding: 20px 80px;
-            background: #ff00ff;
+            padding: 18px 60px;
+            background: var(--neon-pink);
             border: none;
             color: white;
             font-weight: 900;
-            font-size: 20px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            box-shadow: 0 0 40px rgba(255, 0, 255, 0.4);
-            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
-            transition: transform 0.2s;
+            font-size: 22px;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
         }
-        #start-game-btn:active { transform: scale(0.95); }
 
+        /* In-Game UI */
         #game-ui {
             position: absolute;
-            top: 25px; left: 0; width: 100%;
-            pointer-events: none;
+            top: 40px;
+            width: 100%;
             display: none;
             flex-direction: column;
             align-items: center;
-            z-index: 10;
+            pointer-events: none;
+            z-index: 100;
         }
+
         #status {
             color: #fff;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 900;
-            letter-spacing: 4px;
-            text-shadow: 0 0 10px #00ffff;
-            margin: 0;
-            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--neon-blue);
+            margin-bottom: 10px;
         }
-        
+
+        #indicator { width: 240px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        #parry-bar { width: 100%; height: 100%; background: var(--neon-pink); transition: width 0.1s linear; }
+        #parry-bar.resetting { background: #fff; transition: none; }
+
+        /* Mobile Controls */
         #mobile-controls {
             position: absolute;
-            bottom: 40px; width: 100%;
-            pointer-events: none;
+            bottom: 50px;
+            width: 100%;
             display: none;
             justify-content: space-between;
-            padding: 0 40px;
+            padding: 0 30px;
             box-sizing: border-box;
-            z-index: 50;
+            pointer-events: none;
+            z-index: 150;
         }
+
         #joystick-wrapper {
-            width: 130px; height: 130px;
+            width: 140px; height: 140px;
             background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             position: relative;
             pointer-events: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(5px);
         }
+
         #joystick-stick {
-            width: 55px; height: 55px;
+            width: 60px; height: 60px;
             background: #fff;
             border-radius: 50%;
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 20px #fff;
+            box-shadow: 0 0 15px #fff;
         }
+
         #parry-btn {
-            width: 110px; height: 110px;
-            background: rgba(255, 0, 255, 0.1);
-            border: 2px solid #ff00ff;
+            width: 120px; height: 120px;
+            background: rgba(255, 0, 255, 0.2);
+            border: 3px solid var(--neon-pink);
             border-radius: 50%;
             pointer-events: auto;
             display: flex;
@@ -130,69 +150,35 @@
             justify-content: center;
             color: white;
             font-weight: 900;
-            font-size: 20px;
-            box-shadow: 0 0 30px rgba(255,0,255,0.3);
+            font-size: 22px;
+            text-shadow: 0 0 10px #fff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
             user-select: none;
         }
 
-        #overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(15px);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            z-index: 100;
-        }
-        .stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 20px;
-            border-bottom: 3px solid #ff00ff;
-            margin: 10px;
-            width: 280px;
-            text-align: center;
-        }
-        #replay-btn {
-            margin-top: 30px;
-            padding: 15px 50px;
-            background: #00ffff;
-            border: none;
-            color: #000;
-            font-weight: 900;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        #indicator { width: 200px; height: 4px; background: rgba(255,255,255,0.1); margin-top: 15px; overflow: hidden; }
-        #parry-bar { width: 100%; height: 100%; background: #ff00ff; transition: width 0.1s linear; }
-        #parry-bar.resetting { background: #fff; transition: none; }
-        canvas { display: block; }
+        canvas { display: block; width: 100%; height: 100%; }
     </style>
 </head>
 <body>
 
     <div id="lobby">
-        <h1 class="lobby-title">BLADE BALL</h1>
-        <p class="lobby-subtitle">Endless Training // Cyber Tokyo</p>
+        <h1 class="lobby-title">Blade Ball</h1>
+        <p style="letter-spacing: 5px; color: var(--neon-blue); font-size: 12px;">CYBERPUNK ARENA</p>
         <div class="player-select">
             <button class="btn-count" data-count="1">1</button>
             <button class="btn-count" data-count="2">2</button>
             <button class="btn-count" data-count="3">3</button>
-            <button class="btn-count active" data-count="4">4</button>
+            <button class="btn-count" data-count="4">4</button>
             <button class="btn-count" data-count="5">5</button>
             <button class="btn-count" data-count="6">6</button>
             <button class="btn-count" data-count="7">7</button>
-            <button class="btn-count" data-count="8">8</button>
+            <button class="btn-count active" data-count="8">8</button>
         </div>
-        <button id="start-game-btn">START MATCH</button>
+        <button id="start-game-btn">ENTER ARENA</button>
     </div>
 
     <div id="game-ui">
-        <h2 id="status">SYSTEM READY</h2>
+        <h2 id="status">INITIATING...</h2>
         <div id="indicator"><div id="parry-bar"></div></div>
     </div>
 
@@ -201,11 +187,10 @@
         <div id="parry-btn">PARRY</div>
     </div>
 
-    <div id="overlay">
-        <h1 id="end-title" style="color: #ff00ff; font-size: 50px; margin-bottom: 10px; font-style: italic;">GAME OVER</h1>
-        <div class="stat-card">DEFLECTIONS<span id="final-hits" style="color: #00ffff; font-size: 28px; font-weight: 800; display: block;">0</span></div>
-        <div class="stat-card">VELOCITY<span id="final-speed" style="color: #00ffff; font-size: 28px; font-weight: 800; display: block;">0.00</span></div>
-        <button id="replay-btn">RETURN TO LOBBY</button>
+    <div id="overlay" style="display:none; background: rgba(0,0,0,0.9);">
+        <h1 id="end-title" style="font-size: 60px;">DEFEAT</h1>
+        <p id="score-text">DEFLECTIONS: 0</p>
+        <button id="replay-btn" style="padding: 15px 40px; background: var(--neon-blue); border:none; font-weight: bold; margin-top: 20px;">BACK TO LOBBY</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -217,362 +202,330 @@
     <script type="module">
         import * as THREE from 'three';
 
-        const canvas = document.getElementById('gameCanvas');
-        const statusText = document.getElementById('status');
-        const parryBar = document.getElementById('parry-bar');
-        const overlay = document.getElementById('overlay');
-        const endTitle = document.getElementById('end-title');
-        const lobby = document.getElementById('lobby');
-        
+        // --- Core Variables ---
+        let scene, camera, renderer, player, ball, bLight;
+        let gameActive = false;
+        let aliveBots = [];
         let score = 0;
         let ballSpeed = 0.6;
-        const baseSpeed = 0.6;
-        const speedIncrement = 0.07;
-        const MOVEMENT_SPEED = 0.52; 
-        const ARENA_RADIUS = 115;
-        const GROUND_Y = 0; 
-        
-        let isParrying = false;
-        let canParry = true;
-        let gameActive = false;
-        let startingPlayerCount = 4;
-        let aliveBots = [];
-        let currentTargetIndex = -1; 
-
-        // Physics
+        let currentTargetIndex = -1;
+        let currentDir = new THREE.Vector3(0, 0, -1);
         let ballPos = new THREE.Vector3(0, 1.6, 0);
-        let currentDir = new THREE.Vector3(0, 0, 0);
+        let canParry = true;
+        let isParrying = false;
+        let parryTimer = null;
+        let startingCount = 8;
 
-        // Camera
-        let cameraPitch = 0.5;
-        let cameraYaw = 0;
-        let lastTouchX = 0, lastTouchY = 0;
+        const ARENA_RADIUS = 110;
+        const BASE_SPEED = 0.65;
+        const SPEED_INC = 0.08;
 
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020205);
-        scene.fog = new THREE.FogExp2(0x02020a, 0.008);
+        // --- Init Scene ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x010105);
+            scene.fog = new THREE.FogExp2(0x010105, 0.01);
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1500);
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gameCanvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-        const dirLight = new THREE.DirectionalLight(0x00ffff, 1.5);
-        dirLight.position.set(50, 100, 50);
-        scene.add(dirLight);
+            const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambient);
 
-        // Arena
-        const floorGeo = new THREE.PlaneGeometry(1000, 1000);
-        const floorMat = new THREE.MeshStandardMaterial({ color: 0x080810, roughness: 0.2, metalness: 0.8 });
-        const floor = new THREE.Mesh(floorGeo, floorMat);
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.y = GROUND_Y;
-        scene.add(floor);
+            const sun = new THREE.DirectionalLight(0x00ffff, 1);
+            sun.position.set(10, 50, 10);
+            scene.add(sun);
 
-        const grid = new THREE.GridHelper(400, 40, 0x330033, 0x111122);
-        grid.position.y = GROUND_Y + 0.05;
-        scene.add(grid);
+            // Floor
+            const floor = new THREE.Mesh(
+                new THREE.PlaneGeometry(500, 500),
+                new THREE.MeshStandardMaterial({ color: 0x050510, roughness: 0.1, metalness: 0.5 })
+            );
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
 
-        const wallGeo = new THREE.TorusGeometry(ARENA_RADIUS, 0.5, 16, 100);
-        const wallMat = new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0xff00ff, emissiveIntensity: 2 });
-        const boundaryWall = new THREE.Mesh(wallGeo, wallMat);
-        boundaryWall.rotation.x = Math.PI / 2;
-        boundaryWall.position.y = GROUND_Y + 0.1;
-        scene.add(boundaryWall);
+            const grid = new THREE.GridHelper(300, 30, 0xff00ff, 0x111122);
+            scene.add(grid);
 
-        function createEntity(color) {
+            // Ball
+            ball = new THREE.Mesh(
+                new THREE.SphereGeometry(0.8, 32, 32),
+                new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 10 })
+            );
+            bLight = new THREE.PointLight(0xffffff, 100, 40);
+            ball.add(bLight);
+            scene.add(ball);
+
+            player = createChar(0x00ffff);
+            scene.add(player.group);
+
+            window.addEventListener('resize', onResize);
+            setupInput();
+            requestAnimationFrame(animate);
+        }
+
+        function createChar(color) {
             const group = new THREE.Group();
-            
-            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 1, roughness: 0.1 });
-            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.55, 1.3, 8, 16), bodyMat);
-            body.position.y = 1.3;
+            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.6, 1.2, 4, 12), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+            body.position.y = 1.2;
             group.add(body);
 
-            const accentMat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 6 });
-            const headRing = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.04, 8, 24), accentMat);
-            headRing.position.y = 2.4;
-            headRing.rotation.x = Math.PI/2;
-            group.add(headRing);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 2 }));
+            head.position.y = 2.3;
+            group.add(head);
 
-            const visor = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.15, 0.3), accentMat);
-            visor.position.set(0, 2.15, 0.35);
-            group.add(visor);
+            const swordGrp = new THREE.Group();
+            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.05, 3.5, 0.15), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: color, emissiveIntensity: 5 }));
+            blade.position.y = 1.7;
+            swordGrp.add(blade);
+            swordGrp.position.set(0.8, 1, 0.5);
+            group.add(swordGrp);
 
-            const sword = new THREE.Group();
-            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 4.0, 0.12), new THREE.MeshStandardMaterial({ 
-                color: 0xffffff, emissive: color, emissiveIntensity: 10 
-            }));
-            blade.position.y = 2.0;
-            sword.add(blade);
-            sword.position.set(0.8, 1.2, 0.3);
-            group.add(sword);
-
-            group.position.y = GROUND_Y;
-            return { group, sword, velocity: new THREE.Vector3(), lastPos: new THREE.Vector3(), offset: Math.random() * 100, color: color };
+            return { group, sword: swordGrp, color, velocity: new THREE.Vector3(), lastPos: new THREE.Vector3() };
         }
 
-        const player = createEntity(0x00ffff);
-        scene.add(player.group);
-
-        const ball = new THREE.Mesh(
-            new THREE.SphereGeometry(0.8, 32, 32), 
-            new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 20 })
-        );
-        const bLight = new THREE.PointLight(0xffffff, 50, 50);
-        ball.add(bLight);
-        scene.add(ball);
-
-        document.querySelectorAll('.btn-count').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.btn-count').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                startingPlayerCount = parseInt(btn.dataset.count);
-            });
-        });
-
-        function resetBall() {
-            ballPos.set(0, 1.6, 0);
-            currentDir.set(0, 0, -1);
-            ballSpeed = baseSpeed;
-            currentTargetIndex = -1;
-            statusText.innerText = startingPlayerCount > 1 ? "ELIMINATION MATCH" : "TRAINING MODE";
-        }
-
-        document.getElementById('start-game-btn').onclick = () => {
+        // --- Gameplay Logic ---
+        function startGame() {
             aliveBots.forEach(b => scene.remove(b.group));
             aliveBots = [];
-            const colors = [0xff00ff, 0x00ffff, 0xffff00, 0x00ff00, 0xff3300, 0xffffff, 0xaa00ff, 0x00ffaa];
-            for (let i = 0; i < startingPlayerCount; i++) {
-                const b = createEntity(colors[i % colors.length]);
-                const ang = (i / startingPlayerCount) * Math.PI * 2;
-                b.group.position.set(Math.cos(ang)*40, GROUND_Y, Math.sin(ang)*40);
+            const colors = [0xff00ff, 0x00ffff, 0xffff00, 0x00ff00, 0xff0000, 0x0000ff, 0x00ffaa, 0xffaa00];
+            const botCount = startingCount - 1;
+            
+            for(let i=0; i<botCount; i++) {
+                const b = createChar(colors[i % colors.length]);
+                const ang = (i/botCount) * Math.PI * 2;
+                b.group.position.set(Math.cos(ang)*45, 0, Math.sin(ang)*45);
                 scene.add(b.group);
                 aliveBots.push(b);
             }
-            player.group.position.set(0, GROUND_Y, 25);
-            resetBall();
+            
+            player.group.position.set(0,0,25);
+            ballPos.set(0, 1.6, 0);
+            ballSpeed = BASE_SPEED;
+            currentTargetIndex = -1;
             score = 0;
             gameActive = true;
-            lobby.style.display = 'none';
+            document.getElementById('lobby').style.display = 'none';
             document.getElementById('game-ui').style.display = 'flex';
             document.getElementById('mobile-controls').style.display = 'flex';
-        };
+            document.getElementById('status').innerText = "ELIMINATION START";
+        }
 
-        let moveX = 0, moveZ = 0;
-        let touches = {};
-        window.addEventListener('touchstart', e => {
-            for(let t of e.changedTouches) {
-                if(t.target.id === 'joystick-wrapper' || t.target.id === 'joystick-stick') touches[t.identifier] = 'joy';
-                else if(t.target.id === 'parry-btn') { performParry(); touches[t.identifier] = 'parry'; }
-                else { touches[t.identifier] = 'cam'; lastTouchX = t.clientX; lastTouchY = t.clientY; }
-            }
-        }, {passive: false});
-
-        window.addEventListener('touchmove', e => {
-            for(let t of e.changedTouches) {
-                const type = touches[t.identifier];
-                if(type === 'joy') {
-                    const r = document.getElementById('joystick-wrapper').getBoundingClientRect();
-                    const dx = t.clientX - (r.left + r.width/2);
-                    const dy = t.clientY - (r.top + r.height/2);
-                    const d = Math.min(Math.sqrt(dx*dx+dy*dy), r.width/2);
-                    const angle = Math.atan2(dy, dx);
-                    document.getElementById('joystick-stick').style.left = `calc(50% + ${Math.cos(angle)*d}px)`;
-                    document.getElementById('joystick-stick').style.top = `calc(50% + ${Math.sin(angle)*d}px)`;
-                    moveX = (Math.cos(angle)*d)/(r.width/2); moveZ = (Math.sin(angle)*d)/(r.width/2);
-                } else if(type === 'cam') {
-                    cameraYaw -= (t.clientX - lastTouchX) * 0.008;
-                    cameraPitch = Math.max(0.15, Math.min(1.2, cameraPitch + (t.clientY - lastTouchY)*0.008));
-                    lastTouchX = t.clientX; lastTouchY = t.clientY;
-                }
-            }
-        }, {passive: false});
-
-        window.addEventListener('touchend', e => {
-            for(let t of e.changedTouches) {
-                if(touches[t.identifier] === 'joy') {
-                    moveX = 0; moveZ = 0;
-                    document.getElementById('joystick-stick').style.left = '50%';
-                    document.getElementById('joystick-stick').style.top = '50%';
-                }
-                delete touches[t.identifier];
-            }
-        });
-
-        // PARRY SYSTEM
-        let parryTimer = null;
         function performParry() {
             if(!canParry || !gameActive) return;
-            
-            isParrying = true; 
-            canParry = false;
-            player.sword.rotation.z = 1.4;
-            parryBar.style.width = '0%';
-            
-            // Missed parry recovery (standard cooldown)
-            if (parryTimer) clearTimeout(parryTimer);
-            parryTimer = setTimeout(() => { 
-                isParrying = false; 
-                player.sword.rotation.z = 0; 
-                // Default cooldown if no hit occurs
-                setTimeout(() => { canParry = true; parryBar.style.width = '100%'; }, 500);
-            }, 180);
+            isParrying = true; canParry = false;
+            player.sword.rotation.z = 1.5;
+            document.getElementById('parry-bar').style.width = '0%';
+
+            if(parryTimer) clearTimeout(parryTimer);
+            parryTimer = setTimeout(() => {
+                isParrying = false;
+                player.sword.rotation.z = 0;
+                setTimeout(() => { 
+                    if(!canParry) { 
+                        canParry = true; 
+                        document.getElementById('parry-bar').style.width = '100%'; 
+                    }
+                }, 400);
+            }, 200);
         }
 
-        function resetParryCooldownQuick() {
-            // Blade Ball logic: If you hit, cooldown is reset instantly
+        function resetParryQuick() {
             isParrying = false;
             player.sword.rotation.z = 0;
-            if (parryTimer) clearTimeout(parryTimer);
-            
-            // Visual "Hit" indicator for the UI
-            parryBar.classList.add('resetting');
-            parryBar.style.width = '100%';
-            
+            if(parryTimer) clearTimeout(parryTimer);
+            const bar = document.getElementById('parry-bar');
+            bar.classList.add('resetting');
+            bar.style.width = '100%';
             setTimeout(() => {
                 canParry = true;
-                parryBar.classList.remove('resetting');
-            }, 20); // Near-instant reset for clashes
+                bar.classList.remove('resetting');
+            }, 30);
         }
 
-        function createExplosion(pos, color) {
-            const count = 15;
-            for(let i=0; i<count; i++) {
-                const p = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshBasicMaterial({color: color}));
-                p.position.copy(pos);
-                scene.add(p);
-                const vel = new THREE.Vector3((Math.random()-0.5)*2, Math.random()*2, (Math.random()-0.5)*2);
-                const timer = setInterval(() => {
-                    p.position.add(vel);
-                    p.scale.multiplyScalar(0.9);
-                    vel.y -= 0.05;
-                    if(p.scale.x < 0.01) { scene.remove(p); clearInterval(timer); }
-                }, 16);
-            }
-        }
+        // --- Input Handling ---
+        let moveX = 0, moveZ = 0, camYaw = 0;
+        let joyTouchId = null;
+        let camTouchId = null;
+        let lastCamX = 0;
 
-        function endGame(won = false) {
-            gameActive = false;
-            overlay.style.display = 'flex';
-            endTitle.innerText = won ? "VICTORY" : "ELIMINATED";
-            endTitle.style.color = won ? "#00ffff" : "#ff00ff";
-            document.getElementById('final-hits').innerText = score;
-            document.getElementById('final-speed').innerText = ballSpeed.toFixed(2);
-        }
+        function setupInput() {
+            const parryBtn = document.getElementById('parry-btn');
+            const joyWrap = document.getElementById('joystick-wrapper');
+            const joyStick = document.getElementById('joystick-stick');
+            
+            parryBtn.addEventListener('touchstart', (e) => { e.preventDefault(); performParry(); });
 
-        document.getElementById('replay-btn').onclick = () => { overlay.style.display = 'none'; lobby.style.display = 'flex'; };
+            window.addEventListener('touchstart', (e) => {
+                for(let t of e.changedTouches) {
+                    // Check if touching joystick area
+                    const rect = joyWrap.getBoundingClientRect();
+                    const inJoy = t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom;
+                    
+                    if(inJoy && joyTouchId === null) {
+                        joyTouchId = t.identifier;
+                    } else if (camTouchId === null) {
+                        // Any other touch is camera control
+                        camTouchId = t.identifier;
+                        lastCamX = t.clientX;
+                    }
+                }
+            }, {passive: false});
+
+            window.addEventListener('touchmove', (e) => {
+                for(let t of e.changedTouches) {
+                    if(t.identifier === joyTouchId) {
+                        const rect = joyWrap.getBoundingClientRect();
+                        const dx = t.clientX - (rect.left + rect.width/2);
+                        const dy = t.clientY - (rect.top + rect.height/2);
+                        const dist = Math.min(Math.sqrt(dx*dx+dy*dy), rect.width/2);
+                        const angle = Math.atan2(dy, dx);
+                        joyStick.style.left = `calc(50% + ${Math.cos(angle)*dist}px)`;
+                        joyStick.style.top = `calc(50% + ${Math.sin(angle)*dist}px)`;
+                        moveX = (Math.cos(angle)*dist)/(rect.width/2);
+                        moveZ = (Math.sin(angle)*dist)/(rect.width/2);
+                    } else if (t.identifier === camTouchId) {
+                        const deltaX = t.clientX - lastCamX;
+                        camYaw -= deltaX * 0.007; // Sensivity
+                        lastCamX = t.clientX;
+                    }
+                }
+            }, {passive: false});
+
+            window.addEventListener('touchend', (e) => {
+                for(let t of e.changedTouches) {
+                    if(t.identifier === joyTouchId) {
+                        joyTouchId = null;
+                        moveX = 0; moveZ = 0;
+                        joyStick.style.left = '50%'; joyStick.style.top = '50%';
+                    } else if (t.identifier === camTouchId) {
+                        camTouchId = null;
+                    }
+                }
+            });
+            
+            window.addEventListener('touchcancel', (e) => {
+                for(let t of e.changedTouches) {
+                    if(t.identifier === joyTouchId) {
+                        joyTouchId = null;
+                        moveX = 0; moveZ = 0;
+                        joyStick.style.left = '50%'; joyStick.style.top = '50%';
+                    } else if (t.identifier === camTouchId) {
+                        camTouchId = null;
+                    }
+                }
+            });
+        }
 
         function animate(time) {
             requestAnimationFrame(animate);
-            if (!gameActive) return;
+            if(!gameActive) return;
 
-            boundaryWall.material.emissiveIntensity = 2 + Math.sin(time * 0.005) * 1;
-
-            // Player Movement
+            // Player movement
             player.lastPos.copy(player.group.position);
-            const moveVec = new THREE.Vector3(moveX, 0, moveZ).applyAxisAngle(new THREE.Vector3(0,1,0), cameraYaw);
-            player.group.position.add(moveVec.multiplyScalar(MOVEMENT_SPEED));
-            player.group.position.y = GROUND_Y;
-            if(player.group.position.length() > ARENA_RADIUS - 2) player.group.position.setLength(ARENA_RADIUS - 2);
+            const moveVec = new THREE.Vector3(moveX, 0, moveZ).applyAxisAngle(new THREE.Vector3(0,1,0), camYaw);
+            player.group.position.add(moveVec.multiplyScalar(0.5));
+            if(player.group.position.length() > ARENA_RADIUS) player.group.position.setLength(ARENA_RADIUS);
             player.velocity.subVectors(player.group.position, player.lastPos);
-            if(moveVec.length() > 0.1) player.group.rotation.y = THREE.MathUtils.lerp(player.group.rotation.y, Math.atan2(moveVec.x, moveVec.z), 0.15);
+            if(moveVec.length() > 0.1) player.group.rotation.y = Math.atan2(moveVec.x, moveVec.z);
 
-            // Bot AI
-            aliveBots.forEach((b, idx) => {
-                const isBallTarget = (currentTargetIndex === idx);
-                let botMove = new THREE.Vector3(0,0,0);
-                if (isBallTarget) {
-                    const away = new THREE.Vector3().subVectors(b.group.position, ball.position).normalize(); away.y = 0;
-                    botMove.copy(away.multiplyScalar(0.6).add(new THREE.Vector3(away.z, 0, -away.x).multiplyScalar(Math.sin(time * 0.005 + b.offset) * 0.4)));
-                } else {
-                    if (b.group.position.length() > 60) botMove.subVectors(new THREE.Vector3(0,0,0), b.group.position).normalize().multiplyScalar(0.2);
-                    botMove.add(new THREE.Vector3(Math.cos(time * 0.001 + b.offset) * 0.1, 0, Math.sin(time * 0.001 + b.offset) * 0.1));
-                }
-                if (b.group.position.length() > ARENA_RADIUS - 10) botMove.add(new THREE.Vector3().sub(b.group.position).normalize().multiplyScalar(1.5));
-                b.group.position.add(botMove.normalize().multiplyScalar(MOVEMENT_SPEED));
-                if(b.group.position.length() > ARENA_RADIUS - 2) b.group.position.setLength(ARENA_RADIUS - 2);
-                b.group.lookAt(ball.position.x, GROUND_Y, ball.position.z);
-            });
-
-            // Ball Physics
-            if (currentTargetIndex >= aliveBots.length) currentTargetIndex = -1;
-            const target = currentTargetIndex === -1 ? player.group : aliveBots[currentTargetIndex].group;
+            // Ball Logic
+            const target = (currentTargetIndex === -1) ? player.group : (aliveBots[currentTargetIndex]?.group || player.group);
             const toTarget = new THREE.Vector3().subVectors(target.position, ballPos).normalize();
-            const homingStrength = 0.85 + (ballSpeed * 0.02);
-            currentDir.lerp(toTarget, Math.min(homingStrength, 0.99)).normalize();
+            currentDir.lerp(toTarget, 0.1).normalize();
             ballPos.add(currentDir.clone().multiplyScalar(ballSpeed));
-            if (ballPos.length() > ARENA_RADIUS) {
-                ballPos.setLength(ARENA_RADIUS);
-                currentDir.reflect(ballPos.clone().normalize()).multiplyScalar(0.8);
-            }
             ball.position.copy(ballPos);
-            ball.position.y = 1.6 + Math.sin(time * 0.006) * 0.2;
+            ball.position.y = 1.6 + Math.sin(time*0.005)*0.3;
 
+            // Interaction
             const dist = ball.position.distanceTo(target.position);
-
-            // Combat Interactions
-            if(dist < 7.0) { // Wide interaction radius for fast clashes
+            if(dist < 7) {
                 if(currentTargetIndex === -1) {
                     if(isParrying) {
-                        ballSpeed += speedIncrement;
+                        ballSpeed += SPEED_INC;
                         score++;
-                        currentDir.add(player.velocity.clone().multiplyScalar(2.0)).normalize();
-                        if(aliveBots.length > 0) currentTargetIndex = Math.floor(Math.random() * aliveBots.length);
-                        statusText.innerText = "DEFLECTED";
-                        
-                        // CLASH RESET: Instant cooldown on hit
-                        resetParryCooldownQuick();
-                        
-                    } else if(dist < 2.2) {
-                        endGame(false); 
+                        if(aliveBots.length > 0) {
+                            currentTargetIndex = Math.floor(Math.random()*aliveBots.length);
+                        }
+                        resetParryQuick();
+                        document.getElementById('status').innerText = "DEFLECTED!";
+                    } else if(dist < 2.5) {
+                        gameOver(false);
                     }
                 } else {
                     const bot = aliveBots[currentTargetIndex];
-                    const reactionChance = startingPlayerCount > 1 ? (0.88 - (ballSpeed * 0.012)) : 1.0; 
-                    const reactionDist = Math.max(6.0, ballSpeed * 6.0);
-                    if(dist < reactionDist) {
-                        if (Math.random() < reactionChance || startingPlayerCount === 1) {
-                            if(aliveBots.length > 1 && Math.random() < 0.6) {
-                                let next; do { next = Math.floor(Math.random() * aliveBots.length); } while (next === currentTargetIndex);
+                    if(bot && dist < Math.max(6, ballSpeed*5)) {
+                        const difficulty = Math.min(0.95, 0.8 + (ballSpeed * 0.05));
+                        if(Math.random() < difficulty) { 
+                            if(aliveBots.length > 1 && Math.random() < 0.3) {
+                                let next;
+                                do { next = Math.floor(Math.random() * aliveBots.length); } while (next === currentTargetIndex);
                                 currentTargetIndex = next;
-                            } else { currentTargetIndex = -1; statusText.innerText = "BOT TARGETING YOU"; }
-                            ballSpeed += speedIncrement;
-                            bot.sword.rotation.z = -1.4; setTimeout(() => bot.sword.rotation.z = 0, 120);
-                            currentDir.add(new THREE.Vector3((Math.random()-0.5)*0.2, 0, (Math.random()-0.5)*0.2)).normalize();
-                        } else if (dist < 2.2) {
-                            createExplosion(bot.group.position, bot.color);
+                            } else {
+                                currentTargetIndex = -1;
+                            }
+                            ballSpeed += SPEED_INC;
+                            document.getElementById('status').innerText = "BOT DEFLECTED";
+                        } else if(dist < 2.5) {
                             scene.remove(bot.group);
                             aliveBots.splice(currentTargetIndex, 1);
-                            statusText.innerText = "BOT ELIMINATED";
-                            if (aliveBots.length === 0) endGame(true);
-                            else { ballSpeed = Math.max(baseSpeed, ballSpeed * 0.7); currentTargetIndex = -1; }
+                            currentTargetIndex = -1;
+                            if(aliveBots.length === 0) gameOver(true);
+                            else document.getElementById('status').innerText = "BOT ELIMINATED";
                         }
+                    } else if (!bot) {
+                        currentTargetIndex = -1;
                     }
                 }
             }
 
-            const isDanger = (currentTargetIndex === -1 && dist < 30);
-            ball.material.emissive.set(isDanger ? 0xff0000 : (currentTargetIndex === -1 ? 0x00ffff : 0xff00ff));
-            bLight.color.copy(ball.material.emissive);
+            // Visuals
+            const danger = (currentTargetIndex === -1 && dist < 30);
+            ball.material.emissive.set(danger ? 0xff0000 : 0x00ffff);
+            bLight.color.set(danger ? 0xff0000 : 0x00ffff);
 
-            const cd = 32;
+            // Cam
             camera.position.set(
-                player.group.position.x + Math.sin(cameraYaw) * Math.cos(cameraPitch) * cd,
-                player.group.position.y + Math.sin(cameraPitch) * cd + 6,
-                player.group.position.z + Math.cos(cameraYaw) * Math.cos(cameraPitch) * cd
+                player.group.position.x + Math.sin(camYaw)*30,
+                player.group.position.y + 15,
+                player.group.position.z + Math.cos(camYaw)*30
             );
-            camera.lookAt(player.group.position.x, 2, player.group.position.z);
+            camera.lookAt(player.group.position);
+
             renderer.render(scene, camera);
         }
 
-        window.addEventListener('resize', () => {
+        function gameOver(win) {
+            gameActive = false;
+            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('end-title').innerText = win ? "VICTORY" : "ELIMINATED";
+            document.getElementById('score-text').innerText = "DEFLECTIONS: " + score;
+            document.getElementById('mobile-controls').style.display = 'none';
+        }
+
+        function onResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        document.getElementById('start-game-btn').onclick = startGame;
+        document.getElementById('replay-btn').onclick = () => {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('lobby').style.display = 'flex';
+        };
+        
+        document.querySelectorAll('.btn-count').forEach(b => {
+            b.onclick = () => {
+                document.querySelectorAll('.btn-count').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                startingCount = parseInt(b.dataset.count);
+            };
         });
 
-        animate(0);
+        init();
     </script>
 </body>
 </html>
